@@ -7,7 +7,9 @@ import com.shvaiale.irishpub.database.repository.AddressRepository;
 import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
 import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
+import com.shvaiale.irishpub.dto.CustomerCreateDto;
 import com.shvaiale.irishpub.dto.CustomerDto;
+import com.shvaiale.irishpub.mapper.CustomerCreateMapper;
 import com.shvaiale.irishpub.mapper.CustomerMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -45,6 +48,8 @@ class CustomerServiceTest {
     private AddressRepository addressRepository;
     @Spy
     private CustomerMapper customerMapper;
+    @Spy
+    private CustomerCreateMapper customerCreateMapper;
     @InjectMocks
     private CustomerService customerService;
 
@@ -78,11 +83,14 @@ class CustomerServiceTest {
     }
 
     @Test
-    void addNewCustomer() {
+    void create() {
+        when(personRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
+        when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
+        CustomerCreateDto customerCreateDto = new CustomerCreateDto(BIRTH_DATE, NAME, SURNAME);
         CustomerDto expectedResult = new CustomerDto(null, NAME, SURNAME);
 
         // ID is not assigned, because repository is mocked
-        CustomerDto actualResult = customerService.addNewCustomer(BIRTH_DATE, NAME, SURNAME, null);
+        CustomerDto actualResult = customerService.create(customerCreateDto);
 
         assertEquals(expectedResult, actualResult);
         verify(personRepository, only()).save(any());

@@ -8,7 +8,9 @@ import com.shvaiale.irishpub.database.repository.AddressRepository;
 import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
 import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
+import com.shvaiale.irishpub.dto.CustomerCreateDto;
 import com.shvaiale.irishpub.dto.CustomerDto;
+import com.shvaiale.irishpub.mapper.CustomerCreateMapper;
 import com.shvaiale.irishpub.mapper.CustomerMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ public class CustomerService {
     private final PersonalInformationRepository personalInformationRepository;
     private final AddressRepository addressRepository;
     private final CustomerMapper customerMapper;
+    private final CustomerCreateMapper customerCreateMapper;
 
     @Transactional(readOnly = true)
     public Optional<CustomerDto> findById(Integer id) {
@@ -42,21 +45,19 @@ public class CustomerService {
         return maybeCustomer.map(customerMapper::map);
     }
 
-    public CustomerDto addNewCustomer(LocalDate birthDate, String name, String surname, Long discountCardNumber) {
-        Customer customer = Customer.builder()
-                .birthDate(birthDate)
-                .name(name)
-                .surname(surname)
-                .discountCardNumber(discountCardNumber)
-                .build();
-
-        personRepository.save(customer);
-        customerRepository.save(customer);
-
-        log.info("New customer with id={} is saved.", customer.getIdPerson());
-        return customerMapper.map(customer);
+    public CustomerDto create(CustomerCreateDto customerCreateDto) {
+        return Optional.of(customerCreateDto)
+                .map(customerCreateMapper::map)
+                .map(personRepository::save)
+                .map(customerRepository::save)
+                .map(customer -> {
+                    log.info("New customer with id={} is saved.", customer.getIdPerson());
+                    return customerMapper.map(customer);
+                })
+                .orElseThrow();
     }
 
+    // TODO: Add dto instead of arguments?
     public void attachPersonalInfo(int idCustomer, String phoneNumber, String email) {
         Optional<Customer> maybeCustomer = customerRepository.findById(idCustomer);
 
