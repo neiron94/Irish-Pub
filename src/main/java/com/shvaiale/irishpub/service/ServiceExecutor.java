@@ -94,14 +94,14 @@ public class ServiceExecutor {
     public void printFoodOrder() {
         // Error: order does not exist
         System.out.println("Start first operation.");
-        foodOrderService.printFoodOrderInfo(30, LocalDateTime.of(2019,12,20, 4,45));
+        foodOrderService.findByCustomerIdAndTime(30, LocalDateTime.of(2019,12,20, 4,45));
 
         // Success
         System.out.println("Start second operation. Offline food order.");
-        foodOrderService.printFoodOrderInfo(31, LocalDateTime.of(2019,12,20, 4,45));
+        foodOrderService.findByCustomerIdAndTime(31, LocalDateTime.of(2019,12,20, 4,45));
 
         // Success
         System.out.println("Start third operation. Online food order.");
-        foodOrderService.printFoodOrderInfo(31, LocalDateTime.of(2019, 2, 16, 20, 27));
+        foodOrderService.findByCustomerIdAndTime(31, LocalDateTime.of(2019, 2, 16, 20, 27));
     }
 }
