@@ -30,6 +30,7 @@ public class CustomerService {
     private final AddressRepository addressRepository;
     private final CustomerMapper customerMapper;
 
+    @Transactional(readOnly = true)
     public Optional<CustomerDto> findById(Integer id) {
         Optional<Customer> maybeCustomer = customerRepository.findById(id);
 
