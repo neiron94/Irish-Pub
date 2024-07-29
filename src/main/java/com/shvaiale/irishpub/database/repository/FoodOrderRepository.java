@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface FoodOrderRepository extends JpaRepository<FoodOrder, Integer> {
 
-    @Query("select fo from FoodOrder fo where fo.customer = :customerId and fo.time = :time")
+    @Query("select fo from FoodOrder fo where fo.customer.idPerson = :customerId and fo.time = :time")
     Optional<FoodOrder> findBy(Integer customerId, LocalDateTime time);
 }
