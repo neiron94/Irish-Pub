@@ -8,16 +8,17 @@ import com.shvaiale.irishpub.database.repository.AddressRepository;
 import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
 import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
-import com.shvaiale.irishpub.dto.CustomerCreateDto;
-import com.shvaiale.irishpub.dto.CustomerDto;
-import com.shvaiale.irishpub.mapper.CustomerCreateMapper;
-import com.shvaiale.irishpub.mapper.CustomerMapper;
+import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
+import com.shvaiale.irishpub.dto.CustomerReadDto;
+import com.shvaiale.irishpub.mapper.CustomerCreateEditMapper;
+import com.shvaiale.irishpub.mapper.CustomerReadMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,11 +31,19 @@ public class CustomerService {
     private final PersonRepository personRepository;
     private final PersonalInformationRepository personalInformationRepository;
     private final AddressRepository addressRepository;
-    private final CustomerMapper customerMapper;
-    private final CustomerCreateMapper customerCreateMapper;
+    private final CustomerReadMapper customerReadMapper;
+    private final CustomerCreateEditMapper customerCreateEditMapper;
 
     @Transactional(readOnly = true)
-    public Optional<CustomerDto> findById(Integer id) {
+    public List<CustomerReadDto> findAll() {
+        return customerRepository.findAll()
+                .stream()
+                .map(customerReadMapper::map)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CustomerReadDto> findById(Integer id) {
         Optional<Customer> maybeCustomer = customerRepository.findById(id);
 
         maybeCustomer.ifPresentOrElse(
@@ -42,19 +51,37 @@ public class CustomerService {
                 () -> log.warn("Customer with id={} is not found.", id)
         );
 
-        return maybeCustomer.map(customerMapper::map);
+        return maybeCustomer.map(customerReadMapper::map);
     }
 
-    public CustomerDto create(CustomerCreateDto customerCreateDto) {
-        return Optional.of(customerCreateDto)
-                .map(customerCreateMapper::map)
+    public CustomerReadDto create(CustomerCreateEditDto customerCreateEditDto) {
+        return Optional.of(customerCreateEditDto)
+                .map(customerCreateEditMapper::map)
                 .map(personRepository::save)
                 .map(customerRepository::save)
                 .map(customer -> {
                     log.info("New customer with id={} is saved.", customer.getIdPerson());
-                    return customerMapper.map(customer);
+                    return customerReadMapper.map(customer);
                 })
                 .orElseThrow();
+    }
+
+    public Optional<CustomerReadDto> update(Integer id, CustomerCreateEditDto customerDto) {
+        return customerRepository.findById(id)
+                .map(customer -> customerCreateEditMapper.map(customerDto, customer))
+                .map(personRepository::save)
+                .map(customerRepository::saveAndFlush)
+                .map(customerReadMapper::map);
+    }
+
+    public boolean delete(Integer id) {
+        return customerRepository.findById(id)
+                .map(customer -> {
+                    personRepository.delete(customer);
+                    personRepository.flush();
+                    return true;
+                })
+                .orElse(false);
     }
 
     // TODO: Add dto instead of arguments?

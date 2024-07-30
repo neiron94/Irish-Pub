@@ -7,17 +7,16 @@ import com.shvaiale.irishpub.database.repository.AddressRepository;
 import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
 import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
-import com.shvaiale.irishpub.dto.CustomerCreateDto;
-import com.shvaiale.irishpub.dto.CustomerDto;
-import com.shvaiale.irishpub.mapper.CustomerCreateMapper;
-import com.shvaiale.irishpub.mapper.CustomerMapper;
+import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
+import com.shvaiale.irishpub.dto.CustomerReadDto;
+import com.shvaiale.irishpub.mapper.CustomerCreateEditMapper;
+import com.shvaiale.irishpub.mapper.CustomerReadMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -47,9 +46,9 @@ class CustomerServiceTest {
     @Mock
     private AddressRepository addressRepository;
     @Spy
-    private CustomerMapper customerMapper;
+    private CustomerReadMapper customerReadMapper;
     @Spy
-    private CustomerCreateMapper customerCreateMapper;
+    private CustomerCreateEditMapper customerCreateEditMapper;
     @InjectMocks
     private CustomerService customerService;
 
@@ -62,21 +61,21 @@ class CustomerServiceTest {
                 .birthDate(BIRTH_DATE)
                 .build();
         doReturn(Optional.of(customer)).when(customerRepository).findById(CUSTOMER_ID);
-        CustomerDto expectedResult = new CustomerDto(CUSTOMER_ID, NAME, SURNAME);
+        CustomerReadDto expectedResult = new CustomerReadDto(CUSTOMER_ID, NAME, SURNAME);
 
-        Optional<CustomerDto> actualResult = customerService.findById(CUSTOMER_ID);
+        Optional<CustomerReadDto> actualResult = customerService.findById(CUSTOMER_ID);
 
         assertThat(actualResult).isNotEmpty();
         actualResult.ifPresent(actual -> assertEquals(expectedResult, actual));
         verify(customerRepository, only()).findById(CUSTOMER_ID);
-        verify(customerMapper, only()).map(customer);
+        verify(customerReadMapper, only()).map(customer);
     }
 
     @Test
     void findById_CustomerNotFound() {
         doReturn(Optional.empty()).when(customerRepository).findById(CUSTOMER_ID);
 
-        Optional<CustomerDto> actualResult = customerService.findById(CUSTOMER_ID);
+        Optional<CustomerReadDto> actualResult = customerService.findById(CUSTOMER_ID);
 
         assertThat(actualResult).isEmpty();
         verify(customerRepository, only()).findById(CUSTOMER_ID);
@@ -86,16 +85,16 @@ class CustomerServiceTest {
     void create() {
         when(personRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
-        CustomerCreateDto customerCreateDto = new CustomerCreateDto(BIRTH_DATE, NAME, SURNAME);
-        CustomerDto expectedResult = new CustomerDto(null, NAME, SURNAME);
+        CustomerCreateEditDto customerCreateEditDto = new CustomerCreateEditDto(BIRTH_DATE, NAME, SURNAME);
+        CustomerReadDto expectedResult = new CustomerReadDto(null, NAME, SURNAME);
 
         // ID is not assigned, because repository is mocked
-        CustomerDto actualResult = customerService.create(customerCreateDto);
+        CustomerReadDto actualResult = customerService.create(customerCreateEditDto);
 
         assertEquals(expectedResult, actualResult);
         verify(personRepository, only()).save(any());
         verify(customerRepository, only()).save(any());
-        verify(customerMapper, only()).map(any());
+        verify(customerReadMapper, only()).map(any());
     }
 
     @Test
