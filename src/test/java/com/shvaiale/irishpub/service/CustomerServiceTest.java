@@ -61,7 +61,7 @@ class CustomerServiceTest {
                 .birthDate(BIRTH_DATE)
                 .build();
         doReturn(Optional.of(customer)).when(customerRepository).findById(CUSTOMER_ID);
-        CustomerReadDto expectedResult = new CustomerReadDto(CUSTOMER_ID, NAME, SURNAME);
+        CustomerReadDto expectedResult = new CustomerReadDto(CUSTOMER_ID, NAME, SURNAME, BIRTH_DATE);
 
         Optional<CustomerReadDto> actualResult = customerService.findById(CUSTOMER_ID);
 
@@ -86,7 +86,7 @@ class CustomerServiceTest {
         when(personRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         CustomerCreateEditDto customerCreateEditDto = new CustomerCreateEditDto(BIRTH_DATE, NAME, SURNAME);
-        CustomerReadDto expectedResult = new CustomerReadDto(null, NAME, SURNAME);
+        CustomerReadDto expectedResult = new CustomerReadDto(null, NAME, SURNAME, BIRTH_DATE);
 
         // ID is not assigned, because repository is mocked
         CustomerReadDto actualResult = customerService.create(customerCreateEditDto);

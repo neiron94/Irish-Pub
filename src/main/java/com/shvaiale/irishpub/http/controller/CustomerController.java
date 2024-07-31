@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/customers")
@@ -34,12 +35,20 @@ public class CustomerController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public String create(@ModelAttribute CustomerCreateEditDto customer) {
-        CustomerReadDto result = customerService.create(customer);
+    @GetMapping("/create")
+    public String getCreateForm(@ModelAttribute("customer") CustomerCreateEditDto customer) {
+        return "customer/create";
+    }
 
-        return "redirect:customers/" + result.id();
+    @PostMapping
+//    @ResponseStatus(HttpStatus.CREATED)
+    public String create(@ModelAttribute CustomerCreateEditDto customer, RedirectAttributes redirectAttributes) {
+//        if (true) {
+//            redirectAttributes.addFlashAttribute("customer", customer);
+//            return "redirect:/customers/create";
+//        }
+
+        return "redirect:/customers/" + customerService.create(customer).id();
     }
 
 //    @PutMapping("/{id}")

@@ -1,4 +1,6 @@
 package com.shvaiale.irishpub.dto;
 
-public record CustomerReadDto(Integer id, String name, String surname) {
+import java.time.LocalDate;
+
+public record CustomerReadDto(Integer id, String name, String surname, LocalDate birthDate) {
 }
