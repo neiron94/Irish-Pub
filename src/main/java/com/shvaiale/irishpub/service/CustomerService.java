@@ -1,9 +1,11 @@
 package com.shvaiale.irishpub.service;
 
+import com.querydsl.core.types.Predicate;
 import com.shvaiale.irishpub.database.entity.Address;
 import com.shvaiale.irishpub.database.entity.Customer;
 import com.shvaiale.irishpub.database.entity.Person;
 import com.shvaiale.irishpub.database.entity.PersonalInformation;
+import com.shvaiale.irishpub.database.querydsl.QPredicates;
 import com.shvaiale.irishpub.database.repository.AddressRepository;
 import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
@@ -15,12 +17,16 @@ import com.shvaiale.irishpub.mapper.CustomerCreateEditMapper;
 import com.shvaiale.irishpub.mapper.CustomerReadMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import static com.shvaiale.irishpub.database.entity.QCustomer.customer;
 
 @Service
 @Transactional
@@ -36,13 +42,14 @@ public class CustomerService {
     private final CustomerCreateEditMapper customerCreateEditMapper;
 
     @Transactional(readOnly = true)
-    public List<CustomerReadDto> findAll(CustomerFilter filter) {
-        if (filter == null) return findAll();
+    public Page<CustomerReadDto> findAll(CustomerFilter filter, Pageable pageable) {
+        Predicate predicate = QPredicates.builder()
+                .add(filter.name(), customer.name::containsIgnoreCase)
+                .add(filter.surname(), customer.surname::containsIgnoreCase)
+                .add(filter.birthDate(), customer.birthDate::before)
+                .build();
 
-        return customerRepository.findAllByFilter(filter)
-                .stream()
-                .map(customerReadMapper::map)
-                .toList();
+        return customerRepository.findAll(predicate, pageable).map(customerReadMapper::map);
     }
 
     @Transactional(readOnly = true)

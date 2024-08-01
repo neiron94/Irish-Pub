@@ -16,10 +16,16 @@
         <input id="surname" type="text" name="surname" th:value="*{surname}">
         <label for="birthDate">BirthDate: </label>
         <input id="birthDate" type="date" name="birthDate" th:value="*{birthDate}">
+        <div>
+            <label for="page">Page: </label>
+            <input id="page" type="number" name="page" th:value="${customers.metadata.page}">
+            <label for="size">Size: </label>
+            <input id="size" type="number" name="size" th:value="${customers.metadata.size}">
+        </div>
         <button type="submit">Filter</button>
     </form>
     <br>
-    <div th:each="customer : ${customers}">
+    <div th:each="customer : ${customers.content}">
         <a th:href="@{/customers/{id}(id=${customer.id})}" th:text="|${customer.id}. ${customer.name} ${customer.surname}|">Customer</a>
     </div>
 </body>

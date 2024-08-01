@@ -2,8 +2,12 @@ package com.shvaiale.irishpub.http.controller;
 
 import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
 import com.shvaiale.irishpub.dto.CustomerFilter;
+import com.shvaiale.irishpub.dto.CustomerReadDto;
+import com.shvaiale.irishpub.dto.PageResponse;
 import com.shvaiale.irishpub.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,8 +25,9 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public String findAll(Model model, @ModelAttribute("filter") CustomerFilter filter) {
-        model.addAttribute("customers", customerService.findAll(filter));
+    public String findAll(Model model, @ModelAttribute("filter") CustomerFilter filter, Pageable pageable) {
+        Page<CustomerReadDto> page = customerService.findAll(filter, pageable);
+        model.addAttribute("customers", PageResponse.of(page));
 
         return "customer/customers";
     }
