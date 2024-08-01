@@ -1,7 +1,7 @@
 package com.shvaiale.irishpub.http.controller;
 
 import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
-import com.shvaiale.irishpub.dto.CustomerReadDto;
+import com.shvaiale.irishpub.dto.CustomerFilter;
 import com.shvaiale.irishpub.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,8 +21,8 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public String findAll(Model model) {
-        model.addAttribute("customers", customerService.findAll());
+    public String findAll(Model model, @ModelAttribute("filter") CustomerFilter filter) {
+        model.addAttribute("customers", customerService.findAll(filter));
 
         return "customer/customers";
     }

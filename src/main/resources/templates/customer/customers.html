@@ -9,6 +9,16 @@
     <br>
     <a href="/customers/create">Create customer</a>
     <br>
+    <form action="/customers" th:object="${filter}">
+        <label for="name">Name: </label>
+        <input id="name" type="text" name="name" th:value="*{name}">
+        <label for="surname">Surname: </label>
+        <input id="surname" type="text" name="surname" th:value="*{surname}">
+        <label for="birthDate">BirthDate: </label>
+        <input id="birthDate" type="date" name="birthDate" th:value="*{birthDate}">
+        <button type="submit">Filter</button>
+    </form>
+    <br>
     <div th:each="customer : ${customers}">
         <a th:href="@{/customers/{id}(id=${customer.id})}" th:text="|${customer.id}. ${customer.name} ${customer.surname}|">Customer</a>
     </div>

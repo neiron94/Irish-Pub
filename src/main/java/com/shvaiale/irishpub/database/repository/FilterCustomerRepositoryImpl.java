@@ -26,10 +26,10 @@ public class FilterCustomerRepositoryImpl implements FilterCustomerRepository {
         criteria.select(customer);
 
         List<Predicate> predicates = new ArrayList<>();
-        if (filter.name() != null) {
+        if (filter.name() != null && !filter.name().isBlank()) {
             predicates.add(cb.like(customer.get("name"), filter.name()));
         }
-        if (filter.surname() != null) {
+        if (filter.surname() != null && !filter.surname().isBlank()) {
             predicates.add(cb.like(customer.get("surname"), filter.surname()));
         }
         if (filter.birthDate() != null) {

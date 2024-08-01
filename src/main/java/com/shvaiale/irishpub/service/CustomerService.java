@@ -9,6 +9,7 @@ import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
 import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
 import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
+import com.shvaiale.irishpub.dto.CustomerFilter;
 import com.shvaiale.irishpub.dto.CustomerReadDto;
 import com.shvaiale.irishpub.mapper.CustomerCreateEditMapper;
 import com.shvaiale.irishpub.mapper.CustomerReadMapper;
@@ -33,6 +34,16 @@ public class CustomerService {
     private final AddressRepository addressRepository;
     private final CustomerReadMapper customerReadMapper;
     private final CustomerCreateEditMapper customerCreateEditMapper;
+
+    @Transactional(readOnly = true)
+    public List<CustomerReadDto> findAll(CustomerFilter filter) {
+        if (filter == null) return findAll();
+
+        return customerRepository.findAllByFilter(filter)
+                .stream()
+                .map(customerReadMapper::map)
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public List<CustomerReadDto> findAll() {
