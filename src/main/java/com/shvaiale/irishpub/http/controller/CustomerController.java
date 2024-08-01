@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -42,18 +44,21 @@ public class CustomerController {
 
     @PostMapping
 //    @ResponseStatus(HttpStatus.CREATED)
-    public String create(@ModelAttribute CustomerCreateEditDto customer, RedirectAttributes redirectAttributes) {
-//        if (true) {
-//            redirectAttributes.addFlashAttribute("customer", customer);
-//            return "redirect:/customers/create";
-//        }
+    public String create(@ModelAttribute @Validated CustomerCreateEditDto customer,
+                         BindingResult bindingResult,
+                         RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+            redirectAttributes.addFlashAttribute("customer", customer);
+            return "redirect:/customers/create";
+        }
 
         return "redirect:/customers/" + customerService.create(customer).id();
     }
 
 //    @PutMapping("/{id}")
     @PostMapping("/{id}/update")
-    public String update(@ModelAttribute CustomerCreateEditDto customer,
+    public String update(@ModelAttribute @Validated CustomerCreateEditDto customer,
                          @PathVariable Integer id) {
         return customerService.update(id, customer)
                 .map(c -> "redirect:/customers/{id}")
