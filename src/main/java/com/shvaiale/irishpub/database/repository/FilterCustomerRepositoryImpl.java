@@ -1,16 +1,16 @@
 package com.shvaiale.irishpub.database.repository;
 
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.shvaiale.irishpub.database.entity.Customer;
+import com.shvaiale.irishpub.database.querydsl.QPredicates;
 import com.shvaiale.irishpub.dto.CustomerFilter;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.shvaiale.irishpub.database.entity.QCustomer.customer;
 
 @RequiredArgsConstructor
 public class FilterCustomerRepositoryImpl implements FilterCustomerRepository {
@@ -19,25 +19,16 @@ public class FilterCustomerRepositoryImpl implements FilterCustomerRepository {
 
     @Override
     public List<Customer> findAllByFilter(CustomerFilter filter) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Customer> criteria = cb.createQuery(Customer.class);
+        Predicate predicate = QPredicates.builder()
+                .add(filter.name(), customer.name::containsIgnoreCase)
+                .add(filter.surname(), customer.surname::containsIgnoreCase)
+                .add(filter.birthDate(), customer.birthDate::before)
+                .build();
 
-        Root<Customer> customer = criteria.from(Customer.class);
-        criteria.select(customer);
-
-        List<Predicate> predicates = new ArrayList<>();
-        if (filter.name() != null && !filter.name().isBlank()) {
-            predicates.add(cb.like(customer.get("name"), filter.name()));
-        }
-        if (filter.surname() != null && !filter.surname().isBlank()) {
-            predicates.add(cb.like(customer.get("surname"), filter.surname()));
-        }
-        if (filter.birthDate() != null) {
-            predicates.add(cb.lessThan(customer.get("birthDate"), filter.birthDate()));
-        }
-
-        criteria.where(predicates.toArray(Predicate[]::new));
-
-        return entityManager.createQuery(criteria).getResultList();
+        return new JPAQuery<Customer>(entityManager)
+                .select(customer)
+                .from(customer)
+                .where(predicate)
+                .fetch();
     }
 }
