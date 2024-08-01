@@ -42,6 +42,16 @@ public class CustomerController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/{id}/edit")
+    public String getEditForm(Model model, @PathVariable Integer id) {
+        return customerService.findById(id)
+                .map(customer -> {
+                    model.addAttribute("customer", customer);
+                    return "customer/edit";
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
     @GetMapping("/create")
     public String getCreateForm(@ModelAttribute("customer") CustomerCreateEditDto customer) {
         return "customer/create";

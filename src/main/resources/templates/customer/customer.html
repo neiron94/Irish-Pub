@@ -5,23 +5,22 @@
     <title>Customer</title>
 </head>
 <body>
-    <a href="/customers">Back</a>
+    <a href="/customers">All customers</a>
 
-    <form th:action="@{/customers/{id}/update(id=${customer.id})}" method="post" th:object="${customer}">
-        <label for="name">Name: </label>
-        <input id="name" type="text" name="name" th:value="*{name}">
+    <div>
+        <span th:text="|Id: ${customer.id}|">Id</span>
         <br>
-        <label for="surname">Surname: </label>
-        <input id="surname" type="text" name="surname" th:value="*{surname}">
+        <span th:text="|Name: ${customer.name}|">Name</span>
         <br>
-        <label for="birthDate">Birth date: </label>
-        <input id="birthDate" type="date" name="birthDate" th:value="*{birthDate}">
+        <span th:text="|Surname: ${customer.surname}|">Surname</span>
         <br>
-        <button type="submit">Update</button>
-    </form>
+        <span th:text="|Birth date: ${customer.birthDate}|">Birth date</span>
+        <br>
+        <span th:text="'Discount card: ' + (${customer.discountCardNumber} ?: 'NO')"> Discount card number</span>
+    </div>
 
-    <form th:action="@{/customers/{id}/delete(id=${customer.id})}" method="post">
-        <button type="submit">Delete</button>
+    <form th:action="@{/customers/{id}/edit(id=${customer.id})}">
+        <button type="submit">Edit</button>
     </form>
 </body>
 </html>

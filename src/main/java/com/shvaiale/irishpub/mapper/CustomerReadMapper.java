@@ -13,6 +13,7 @@ public class CustomerReadMapper implements Mapper<Customer, CustomerReadDto> {
                 from.getIdPerson(),
                 from.getName(),
                 from.getSurname(),
-                from.getBirthDate());
+                from.getBirthDate(),
+                from.getDiscountCardNumber());
     }
 }

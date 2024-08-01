@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Create customer</title>
+    <title>Edit customer</title>
 </head>
 <body>
     <a href="/customers">All customers</a>
-    <br>
-    <form th:action="@{/customers}" method="post" th:object="${customer}">
+
+    <form th:action="@{/customers/{id}/update(id=${customer.id})}" method="post" th:object="${customer}">
         <label for="name">Name: </label>
         <input id="name" type="text" name="name" th:value="*{name}">
         <br>
@@ -17,10 +17,11 @@
         <label for="birthDate">Birth date: </label>
         <input id="birthDate" type="date" name="birthDate" th:value="*{birthDate}">
         <br>
-        <button type="submit">Create</button>
+        <button type="submit">Update</button>
     </form>
-    <div th:if="${errors}">
-        <p style="color: red" th:each="error : ${errors}" th:text="${error.defaultMessage}">Error message</p>
-    </div>
+
+    <form th:action="@{/customers/{id}/delete(id=${customer.id})}" method="post">
+        <button type="submit">Delete</button>
+    </form>
 </body>
 </html>
