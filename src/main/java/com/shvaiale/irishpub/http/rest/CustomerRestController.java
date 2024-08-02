@@ -1,18 +1,28 @@
 package com.shvaiale.irishpub.http.rest;
 
 import com.shvaiale.irishpub.dto.*;
+import com.shvaiale.irishpub.exception.CustomerNotFoundException;
+import com.shvaiale.irishpub.http.handler.RestControllerExceptionHandler;
 import com.shvaiale.irishpub.service.CustomerService;
 import com.shvaiale.irishpub.service.PersonalInformationService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import java.net.URI;
+import java.time.LocalDate;
+
+import static com.shvaiale.irishpub.http.handler.RestControllerExceptionHandler.getErrorsMap;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -29,41 +39,60 @@ public class CustomerRestController {
     }
 
     @GetMapping("/{id}")
-    public CustomerReadDto findById(@PathVariable Integer id) {
+    public ResponseEntity<CustomerReadDto> findById(@PathVariable Integer id) {
         return customerService.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .map(ok()::body)
+                .orElseThrow(() -> new CustomerNotFoundException(id));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CustomerReadDto create(@Validated @RequestBody CustomerCreateEditDto customer) {
-        return customerService.create(customer);
+    public ResponseEntity<?> create(@Validated @RequestBody CustomerCreateEditDto customer) {
+        if (customerService.findBy(customer.birthDate(), customer.name(), customer.surname()).isPresent())
+            return status(CONFLICT).body("Customer with these name, surname and birth date already exist");
+
+        CustomerReadDto customerDto = customerService.create(customer);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(customerDto.id())
+                .toUri();
+        return ResponseEntity.created(location).build();
     }
 
     @PutMapping("/{id}")
-    public CustomerReadDto update(@Validated @RequestBody CustomerCreateEditDto customer,
-                                  @PathVariable Integer id) {
+    public ResponseEntity<CustomerReadDto> update(@Validated @RequestBody CustomerCreateEditDto customer,
+                                                  @PathVariable Integer id) {
         return customerService.update(id, customer)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .map(ok()::body)
+                .orElseThrow(() -> new CustomerNotFoundException(id));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(NO_CONTENT)
-    public void delete(@PathVariable Integer id) {
-        if (!customerService.delete(id))
-            throw new ResponseStatusException(NOT_FOUND);
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        return customerService.delete(id) ? ResponseEntity.noContent().build() :
+            status(GONE).body(getErrorsMap("Customer with id %d already deleted".formatted(id)));
     }
 
     @PostMapping("/{id}/info")
-    public PersonalInformationReadCreateDto attachInfo(@RequestBody PersonalInformationReadCreateDto personalInformation) {
-        return personalInformationService.create(personalInformation);
+    public ResponseEntity<?> attachInfo(@RequestBody @Validated PersonalInformationReadCreateDto personalInformation) {
+        if (customerService.findById(personalInformation.id()).isEmpty())
+            throw new CustomerNotFoundException(personalInformation.id());
 
+        if (personalInformationService.findById(personalInformation.id()).isPresent())
+            return status(CONFLICT).body(getErrorsMap("Customer with id %d have already attached personal info".formatted(personalInformation.id())));
+
+        personalInformationService.create(personalInformation);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .build()
+                .toUri();
+        return created(location).build();
     }
 
     @DeleteMapping("/{id}/info")
-    @ResponseStatus(NO_CONTENT)
-    public void detachInfo(@PathVariable Integer id) {
-        if (!personalInformationService.delete(id))
-            throw new ResponseStatusException(NOT_FOUND);
+    public ResponseEntity<?> detachInfo(@PathVariable Integer id) {
+        if (customerService.findById(id).isEmpty())
+            throw new CustomerNotFoundException(id);
+
+        return personalInformationService.delete(id) ? noContent().build() :
+                status(GONE).body(getErrorsMap("Personal info with id %d is already detached".formatted(id)));
     }
 }

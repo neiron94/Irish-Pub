@@ -46,7 +46,7 @@ public class TableOrderService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void bookTable(int idCustomer, LocalDateTime orderTime, short tableNumber, int idWorker) {
         Optional<Customer> maybeCustomer = customerRepository.findById(idCustomer);
-        Customer customer = maybeCustomer.orElseThrow(() -> new CustomerNotFoundException("Customer with id=%d is not found.".formatted(idCustomer)));
+        Customer customer = maybeCustomer.orElseThrow(() -> new CustomerNotFoundException(idCustomer));
         log.info("Customer with id={} is found.", idCustomer);
 
         Optional<Worker> maybeWorker = workerRepository.findById(idWorker);
