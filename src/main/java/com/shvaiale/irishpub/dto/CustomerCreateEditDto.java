@@ -17,5 +17,7 @@ public record CustomerCreateEditDto(@Past
 
                                     @NotBlank
                                     @Size(min = 3, max = 40)
-                                    String surname) {
+                                    String surname,
+
+                                    PersonalInformationReadCreateDto personalInformation) {
 }

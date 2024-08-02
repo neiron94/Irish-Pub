@@ -9,7 +9,7 @@ public class PersonalInformationReadMapper implements Mapper<PersonalInformation
 
     @Override
     public PersonalInformationReadCreateDto map(PersonalInformation from) {
-        return from == null ? null : new PersonalInformationReadCreateDto(
+        return new PersonalInformationReadCreateDto(
                 from.getIdCustomer(),
                 from.getPhoneNumber(),
                 from.getEmail(),
