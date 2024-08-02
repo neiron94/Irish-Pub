@@ -1,12 +1,10 @@
 package com.shvaiale.irishpub.service;
 
 import com.querydsl.core.types.Predicate;
-import com.shvaiale.irishpub.database.entity.Address;
 import com.shvaiale.irishpub.database.entity.Customer;
 import com.shvaiale.irishpub.database.entity.Person;
 import com.shvaiale.irishpub.database.entity.PersonalInformation;
 import com.shvaiale.irishpub.database.querydsl.QPredicates;
-import com.shvaiale.irishpub.database.repository.AddressRepository;
 import com.shvaiale.irishpub.database.repository.CustomerRepository;
 import com.shvaiale.irishpub.database.repository.PersonRepository;
 import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
@@ -36,8 +34,6 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final PersonRepository personRepository;
-    private final PersonalInformationRepository personalInformationRepository;
-    private final AddressRepository addressRepository;
     private final CustomerReadMapper customerReadMapper;
     private final CustomerCreateEditMapper customerCreateEditMapper;
 
@@ -102,41 +98,40 @@ public class CustomerService {
                 .orElse(false);
     }
 
-    // TODO: Add dto instead of arguments?
-    public void attachPersonalInfo(int idCustomer, String phoneNumber, String email) {
-        Optional<Customer> maybeCustomer = customerRepository.findById(idCustomer);
+//    public void attachPersonalInfo(int idCustomer, String phoneNumber, String email) {
+//        Optional<Customer> maybeCustomer = customerRepository.findById(idCustomer);
+//
+//        maybeCustomer.ifPresentOrElse(customer -> {
+//                    PersonalInformation personalInformation = PersonalInformation.builder()
+//                            .customer(customer)
+//                            .phoneNumber(phoneNumber)
+//                            .email(email)
+//                            .build();
+//
+//                    customer.setPersonalInformation(personalInformation);
+//                    customerRepository.save(customer);
+//                    log.info("Personal information with id={} is attached.", personalInformation.getIdCustomer());
+//                },
+//
+//                () -> log.warn("Customer with id={} does not exist.", idCustomer));
+//    }
 
-        maybeCustomer.ifPresentOrElse(customer -> {
-                    PersonalInformation personalInformation = PersonalInformation.builder()
-                            .customer(customer)
-                            .phoneNumber(phoneNumber)
-                            .email(email)
-                            .build();
-
-                    customer.setPersonalInformation(personalInformation);
-                    customerRepository.save(customer);
-                    log.info("Personal information with id={} is attached.", personalInformation.getIdCustomer());
-                },
-
-                () -> log.warn("Customer with id={} does not exist.", idCustomer));
-    }
-
-    public void attachAddress(int idCustomer, int houseNumber, String street) {
-        Optional<PersonalInformation> maybePersonalInformation = personalInformationRepository.findById(idCustomer);
-
-        maybePersonalInformation.ifPresentOrElse(personalInformation -> {
-                    Address address = Address.builder()
-                            .personalInformation(personalInformation)
-                            .houseNumber(houseNumber)
-                            .street(street)
-                            .build();
-
-                    addressRepository.save(address);
-                    log.info("Address with id={} is attached to customer with id={}.", address.getId(), personalInformation.getIdCustomer());
-                },
-
-                () -> log.warn("Customer with id={} has not attached personal information.", idCustomer));
-    }
+//    public void attachAddress(int idCustomer, int houseNumber, String street) {
+//        Optional<PersonalInformation> maybePersonalInformation = personalInformationRepository.findById(idCustomer);
+//
+//        maybePersonalInformation.ifPresentOrElse(personalInformation -> {
+//                    Address address = Address.builder()
+//                            .personalInformation(personalInformation)
+//                            .houseNumber(houseNumber)
+//                            .street(street)
+//                            .build();
+//
+//                    addressRepository.save(address);
+//                    log.info("Address with id={} is attached to customer with id={}.", address.getId(), personalInformation.getIdCustomer());
+//                },
+//
+//                () -> log.warn("Customer with id={} has not attached personal information.", idCustomer));
+//    }
 
     @Transactional(readOnly = true)
     public Integer getCustomerId(LocalDate birthDate, String name, String surname) {

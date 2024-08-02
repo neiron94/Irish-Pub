@@ -8,8 +8,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice(basePackages = "com.shvaiale.irishpub.http.controller")
 public class ControllerExceptionHandler /* extends ResponseEntityExceptionHandler */ {
 
-    @ExceptionHandler(Exception.class)
-    public String handleExceptions(Exception exception, HttpServletRequest request) {
-        return "error/error500";
-    }
+//    @ExceptionHandler(Exception.class)
+//    public String handleExceptions(Exception exception, HttpServletRequest request) {
+//        return "error/error500";
+//    }
 }

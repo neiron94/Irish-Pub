@@ -20,7 +20,7 @@ public class Customer extends Person {
     @Column(name = "discount_card_number", unique = true)
     private Long discountCardNumber;
 
-    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private PersonalInformation personalInformation;
 

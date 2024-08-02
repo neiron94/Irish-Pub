@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@ToString(of = {"email", "phoneNumber"})
+@ToString(of = {"email", "phoneNumber", "street", "houseNumber"})
 @EqualsAndHashCode(of = "email")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,17 +27,9 @@ public class PersonalInformation {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "id_customer", nullable = false)
-    private Customer customer;
+    @Column(nullable = false)
+    private String street;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "personalInformation")
-    private Set<Address> addresses = new HashSet<>();
-
-    public void addAddress(Address address) {
-        addresses.add(address);
-        address.setPersonalInformation(this);
-    }
+    @Column(name = "house_number", nullable = false)
+    private Integer houseNumber;
 }

@@ -17,7 +17,28 @@
         <label for="birthDate">Birth date: </label>
         <input id="birthDate" type="date" name="birthDate" th:value="*{birthDate}">
         <br>
+        <div th:if="${customer.personalInformation}" th:object="${customer.personalInformation}">
+            <input hidden="hidden" type="number" name="id" th:value="${customer.id}">
+            <label for="phoneNumber">Phone number: </label>
+            <input id="phoneNumber" type="text" name="phoneNumber" th:value="*{phoneNumber}">
+            <br>
+            <label for="email">Email: </label>
+            <input id="email" type="text" name="email" th:value="*{email}">
+            <br>
+            <label for="street">Street: </label>
+            <input id="street" type="text" name="street" th:value="*{street}">
+            <br>
+            <label for="houseNumber">House number: </label>
+            <input id="houseNumber" type="number" name="houseNumber" th:value="*{houseNumber}">
+        </div>
         <button type="submit">Update</button>
+    </form>
+
+    <form th:if="${customer.personalInformation}" th:action="@{/customers/{id}/info/delete(id=${customer.id})}" method="post">
+        <button type="submit">Detach info</button>
+    </form>
+    <form th:unless="${customer.personalInformation}" th:action="@{/customers/{id}/info/attach(id=${customer.id})}">
+        <button type="submit">Attach info</button>
     </form>
 
     <form th:action="@{/customers/{id}/delete(id=${customer.id})}" method="post">

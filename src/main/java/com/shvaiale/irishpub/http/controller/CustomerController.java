@@ -1,14 +1,11 @@
 package com.shvaiale.irishpub.http.controller;
 
-import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
-import com.shvaiale.irishpub.dto.CustomerFilter;
-import com.shvaiale.irishpub.dto.CustomerReadDto;
-import com.shvaiale.irishpub.dto.PageResponse;
+import com.shvaiale.irishpub.dto.*;
 import com.shvaiale.irishpub.service.CustomerService;
+import com.shvaiale.irishpub.service.PersonalInformationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,12 +14,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Controller
 @RequestMapping("/customers")
 @RequiredArgsConstructor
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final PersonalInformationService personalInformationService;
 
     @GetMapping
     public String findAll(Model model, @ModelAttribute("filter") CustomerFilter filter, Pageable pageable) {
@@ -39,7 +39,7 @@ public class CustomerController {
                     model.addAttribute("customer", customer);
                     return "customer/customer";
                 })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
     @GetMapping("/{id}/edit")
@@ -49,7 +49,7 @@ public class CustomerController {
                     model.addAttribute("customer", customer);
                     return "customer/edit";
                 })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
     @GetMapping("/create")
@@ -74,18 +74,41 @@ public class CustomerController {
 //    @PutMapping("/{id}")
     @PostMapping("/{id}/update")
     public String update(@ModelAttribute @Validated CustomerCreateEditDto customer,
+                         @ModelAttribute PersonalInformationReadCreateDto personalInfo,
                          @PathVariable Integer id) {
         return customerService.update(id, customer)
-                .map(c -> "redirect:/customers/{id}")
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .map(c -> {
+                    personalInformationService.update(personalInfo);
+                    return "redirect:/customers/{id}";
+                })
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
 //    @DeleteMapping("/{id}")
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id) {
         if (!customerService.delete(id))
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(NOT_FOUND);
 
         return "redirect:/customers";
+    }
+
+    @GetMapping("/{id}/info/attach")
+    public String getAttachInfoForm(@ModelAttribute("id") @PathVariable Integer id) {
+        return "customer/attach";
+    }
+
+    @PostMapping("/{id}/info")
+    public String attachInfo(PersonalInformationReadCreateDto personalInformation) {
+        PersonalInformationReadCreateDto result = personalInformationService.create(personalInformation);
+        return "redirect:/customers/" + result.id();
+    }
+
+    @PostMapping("/{id}/info/delete")
+    public String detachInfo(@PathVariable Integer id) {
+        if (!personalInformationService.delete(id))
+            throw new ResponseStatusException(NOT_FOUND);
+
+        return "redirect:/customers/{id}";
     }
 }

@@ -17,6 +17,16 @@
         <span th:text="|Birth date: ${customer.birthDate}|">Birth date</span>
         <br>
         <span th:text="'Discount card: ' + (${customer.discountCardNumber} ?: 'NO')"> Discount card number</span>
+        <br>
+        <div th:if="${customer.personalInformation}" th:object="${customer.personalInformation}">
+            Personal information:
+            <br>
+            <span th:text="|Phone number: *{phoneNumber}|">Phone number</span>
+            <br>
+            <span th:text="|Email: *{email}|">Email</span>
+            <br>
+            Address: <span th:text="*{street}">Street</span>, <span th:text="*{houseNumber}">House number</span>
+        </div>
     </div>
 
     <form th:action="@{/customers/{id}/edit(id=${customer.id})}">
