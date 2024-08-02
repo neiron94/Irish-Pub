@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Attach info</title>
+</head>
+<body>
+<form th:action="@{/customers/{id}/info(id=${id})}" method="post">
+    <input hidden="hidden" type="number" name="id" th:value="${id}">
+    <label for="phoneNumber">Phone number: </label>
+    <input id="phoneNumber" type="text" name="phoneNumber">
+    <br>
+    <label for="email">Email: </label>
+    <input id="email" type="text" name="email">
+    <br>
+    <label for="street">Street: </label>
+    <input id="street" type="text" name="street">
+    <br>
+    <label for="houseNumber">House number: </label>
+    <input id="houseNumber" type="number" name="houseNumber">
+    <br>
+    <button type="submit">Attach</button>
+</form>
+</body>
+</html>

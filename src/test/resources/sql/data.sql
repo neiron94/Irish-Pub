@@ -9,12 +9,8 @@ insert into customer (id_customer, discount_card_number)
 values (1, 228544603),
        (2, null);
 
-insert into personal_information (id_customer, phone_number, email)
-values (1, '+353876543212', 'michael.oconnor@example.com');
-
-insert into address (id, id_customer, house_number, street)
-values (1, 1, 11, 'Gagarina');
-select setval('address_id_seq', (select max(id) from address));
+insert into personal_information (id_customer, phone_number, email, street, house_number)
+values (1, '+353876543212', 'michael.oconnor@example.com', 'Gagarina', 11);
 
 insert into worker (id_worker, working_phone_number, email, salary)
 values (3, '+353876543210', 'david.oneill@example.com', 2500),

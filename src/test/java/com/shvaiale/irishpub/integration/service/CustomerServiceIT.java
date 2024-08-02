@@ -1,8 +1,8 @@
 package com.shvaiale.irishpub.integration.service;
 
-import com.shvaiale.irishpub.dto.CustomerCreateDto;
+import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
 import com.shvaiale.irishpub.integration.IntegrationTestBase;
-import com.shvaiale.irishpub.dto.CustomerDto;
+import com.shvaiale.irishpub.dto.CustomerReadDto;
 import com.shvaiale.irishpub.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class CustomerServiceIT extends IntegrationTestBase {
 
     @Test
     void findById_Success() {
-        Optional<CustomerDto> maybeCustomer = customerService.findById(CUSTOMER_ID);
+        Optional<CustomerReadDto> maybeCustomer = customerService.findById(CUSTOMER_ID);
 
         assertThat(maybeCustomer).isNotEmpty();
         maybeCustomer.ifPresent(customer -> assertEquals(CUSTOMER_ID, customer.id()));
@@ -35,27 +35,27 @@ class CustomerServiceIT extends IntegrationTestBase {
 
     @Test
     void findById_CustomerNotFound() {
-        Optional<CustomerDto> maybeCustomer = customerService.findById(WRONG_ID);
+        Optional<CustomerReadDto> maybeCustomer = customerService.findById(WRONG_ID);
 
         assertThat(maybeCustomer).isEmpty();
     }
 
     @Test
     void create_Success() {
-        CustomerCreateDto customerCreateDto = new CustomerCreateDto(BIRTH_DATE, NEW_NAME, SURNAME);
+        CustomerCreateEditDto customerCreateEditDto = new CustomerCreateEditDto(BIRTH_DATE, NEW_NAME, SURNAME);
 
-        CustomerDto result = customerService.create(customerCreateDto);
+        CustomerReadDto result = customerService.create(customerCreateEditDto);
 
         assertNotNull(result.id());
-        Optional<CustomerDto> maybeCustomer = customerService.findById(result.id());
+        Optional<CustomerReadDto> maybeCustomer = customerService.findById(result.id());
         assertThat(maybeCustomer).isNotEmpty();
     }
 
     @Test
     void create_NotCreated() {
-        CustomerCreateDto customerCreateDto = new CustomerCreateDto(BIRTH_DATE, NAME, SURNAME);
+        CustomerCreateEditDto customerCreateEditDto = new CustomerCreateEditDto(BIRTH_DATE, NAME, SURNAME);
 
-        assertThrows(RuntimeException.class, () -> customerService.create(customerCreateDto));
+        assertThrows(RuntimeException.class, () -> customerService.create(customerCreateEditDto));
     }
 
     //TODO
