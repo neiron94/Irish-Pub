@@ -11,8 +11,10 @@ import com.shvaiale.irishpub.database.repository.PersonalInformationRepository;
 import com.shvaiale.irishpub.dto.CustomerCreateEditDto;
 import com.shvaiale.irishpub.dto.CustomerFilter;
 import com.shvaiale.irishpub.dto.CustomerReadDto;
+import com.shvaiale.irishpub.dto.PersonReadDto;
 import com.shvaiale.irishpub.mapper.CustomerCreateEditMapper;
 import com.shvaiale.irishpub.mapper.CustomerReadMapper;
+import com.shvaiale.irishpub.mapper.PersonReadMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,7 @@ public class CustomerService {
     private final PersonRepository personRepository;
     private final CustomerReadMapper customerReadMapper;
     private final CustomerCreateEditMapper customerCreateEditMapper;
+    private final PersonReadMapper personReadMapper;
 
     @Transactional(readOnly = true)
     public Page<CustomerReadDto> findAll(CustomerFilter filter, Pageable pageable) {
@@ -66,6 +69,13 @@ public class CustomerService {
         );
 
         return maybeCustomer.map(customerReadMapper::map);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PersonReadDto> findBy(LocalDate birthDate, String name, String surname) {
+        Optional<Person> maybePerson = personRepository.findBy(birthDate, name, surname);
+
+        return maybePerson.map(personReadMapper::map);
     }
 
     public CustomerReadDto create(CustomerCreateEditDto customerCreateEditDto) {

@@ -74,13 +74,15 @@ public class CustomerController {
 //    @PutMapping("/{id}")
     @PostMapping("/{id}/update")
     public String update(@ModelAttribute @Validated CustomerCreateEditDto customer,
-                         @ModelAttribute PersonalInformationReadCreateDto personalInfo,
+                         @ModelAttribute PersonalInformationReadCreateDto personalInformation,
                          @PathVariable Integer id) {
-        return customerService.update(id, customer)
-                .map(c -> {
-                    personalInformationService.update(personalInfo);
-                    return "redirect:/customers/{id}";
-                })
+        CustomerCreateEditDto customerToUpdate = new CustomerCreateEditDto(
+                customer.birthDate(),
+                customer.name(),
+                customer.surname(),
+                personalInformation);
+        return customerService.update(id, customerToUpdate)
+                .map(c -> "redirect:/customers/{id}")
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
